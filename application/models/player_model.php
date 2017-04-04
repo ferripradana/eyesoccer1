@@ -79,7 +79,10 @@ class Player_model extends CI_Model
             $wh = explode('/', $q['tinggiberatbadan_pemain']);
             $height = $wh[0];
             $weight = isset($wh[1])?$wh[1]:"";
-            $birth_date = strtotime($q['birth_date']);
+            $birth_date = explode( '/',$q['birth_date']);
+
+            $birth_date = $birth_date[2].'-'.$birth_date[1].'-'.$birth_date[0];
+           
             $return  = [
                 "id" =>  $q['id'],
                 "name" => $q['name'],
@@ -94,7 +97,7 @@ class Player_model extends CI_Model
                 "total_appearance" => $appear,
                 "total_goal" => $goal,
                 "club" =>$q['club'],
-                "birth_date" => strtotime($q['birthdate']),
+                "birth_date" => strtotime($birth_date) ,
                 "debut_date" => '-',
             ];
         }
