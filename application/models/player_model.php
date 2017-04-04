@@ -66,8 +66,8 @@ class Player_model extends CI_Model
         foreach ($query_careers as $k) {
             $career[] = [
                 "club_name" => $k['klub'],
-                "start_date" => $k['tahun'],
-                "end_date" => "-" ,
+                "start_date" => '-',
+                "end_date" => $k['tahun'] ,
                 "appearance" =>  $k['main'],
                 "goal" => $k['gol'],
             ];
@@ -95,7 +95,7 @@ class Player_model extends CI_Model
                 "total_goal" => $goal,
                 "club" =>$q['club'],
                 "birth_date" => strtotime($q['birthdate']),
-                "debut_date" => '',
+                "debut_date" => '-',
             ];
         }
 
