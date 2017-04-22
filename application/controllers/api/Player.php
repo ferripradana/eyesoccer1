@@ -41,19 +41,30 @@ class Player extends REST_Controller {
         $offset = -1;
         $limit = -1;
 
-        if (!empty($this->get('limit'))) {
-             $limit = $this->get('limit');
+        $key = '';
+        if (!empty($this->get('key'))) {
+            $key = (string)$this->get('key');
         }
 
+        $s = '';
+        if (!empty($this->get('s'))) {
+            $s = (string) $this->get('s');
+        }
+
+        if (!empty($this->get('limit'))) {
+             $limit = (string)$this->get('limit');
+        }
+        $page = 1;
         if (!empty($this->get('page'))) {
             $offset = ($this->get('page')  == 1) ? 0 : ($this->get('page')  * $limit) - $limit;
+            $page = $this->get('page') ;
         }
 
         // echo $offset; die();
 
         if ($id === NULL)
         {
-            $players = $this->player_model->get_all_limit_page($limit,$offset);
+            $players = $this->player_model->get_all_limit_page($limit,$offset, $page, $key, $s);
             if ($players)
             {
                 $this->response($players, REST_Controller::HTTP_OK); // OK (200) being the HTTP response code

@@ -23,10 +23,19 @@ class Player_model extends CI_Model
     }
 
 
-    function get_all_limit_page($limit,$offset){
+    function get_all_limit_page($limit,$offset, $page, $key, $s){
             if ($limit!=-1 and $offset!=-1) {
                 $this->db->limit($limit,$offset);
             }
+
+            $mapping = [
+                'name' => 'nama_data_pendaftaran'
+            ];
+            if (isset($mapping[$key])) {
+                $this->db->where($mapping[$key].' like "%'.$s.'%" ');
+            }
+
+
            $return = $this->db->select('id_data_pemain AS id ,
             d.nama_data_pendaftaran AS name, 
             d.posisi_data_pendaftaran AS position,   namanopunggung_data_pemain AS number,  
@@ -37,10 +46,11 @@ class Player_model extends CI_Model
                             ->order_by('d.nama_data_pendaftaran', 'asc')
                             ->get()
                             ->result();     
+                       
             return [
                 'data' => $return,
-                'total_page' => ceil($this->total_rows()/$limit),
-                'current'   => $offset+1,
+                'total_page' => $offset!=-1 ? ceil($this->total_rows($key, $s)/$limit) : 1,
+                'current'   => $offset!=-1 ? $page : 1 ,
             ];
     }
 
@@ -61,7 +71,7 @@ class Player_model extends CI_Model
         $return = array();
 
         $appear = 0;
-        $gol = 0;
+        $goal = 0;
         $career = array();
         foreach ($query_careers as $k) {
             $career[] = [
@@ -80,8 +90,12 @@ class Player_model extends CI_Model
             $height = $wh[0];
             $weight = isset($wh[1])?$wh[1]:"";
             $birth_date = explode( '/',$q['birth_date']);
-
-            $birth_date = $birth_date[2].'-'.$birth_date[1].'-'.$birth_date[0];
+            if (isset($birth_date[2])) {
+                 $birth_date = $birth_date[2].'-'.$birth_date[1].'-'.$birth_date[0];
+            }else{
+                $birth_date='-';
+            }
+           
            
             $return  = [
                 "id" =>  $q['id'],
@@ -97,7 +111,7 @@ class Player_model extends CI_Model
                 "total_appearance" => $appear,
                 "total_goal" => $goal,
                 "club" =>$q['club'],
-                "birth_date" => strtotime($birth_date) ,
+                "birth_date" => $q['birth_date'],
                 "debut_date" => '-',
             ];
         }
@@ -113,7 +127,13 @@ class Player_model extends CI_Model
     }
     
     // get total rows
-    function total_rows() {
+    function total_rows($key,$s) {
+        $mapping = [
+                'name' => 'nama_data_pendaftaran'
+        ];
+        if (isset($mapping[$key])) {
+                $this->db->where($mapping[$key].' like "%'.$s.'%" ');
+        }
         return $this->db->select('id_data_pemain AS id ,
             d.nama_data_pendaftaran AS name, 
             d.posisi_data_pendaftaran AS position,   namanopunggung_data_pemain AS number,  
@@ -134,16 +154,16 @@ class Player_model extends CI_Model
     
     // get search total rows
     function search_total_rows($keyword = NULL) {
-	$this->db->like('jenisname', $keyword);
-	$this->db->from($this->table);
+    $this->db->like('jenisname', $keyword);
+    $this->db->from($this->table);
         return $this->db->count_all_results();
     }
 
     // get search data with limit
     function search_index_limit($limit, $start = 0, $keyword = NULL) {
         $this->db->order_by($this->id, $this->order);
-	$this->db->or_like('jenisname', $keyword);
-	$this->db->limit($limit, $start);
+    $this->db->or_like('jenisname', $keyword);
+    $this->db->limit($limit, $start);
         return $this->db->get($this->table)->result();
     }
 
